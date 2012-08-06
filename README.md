@@ -3,8 +3,8 @@ pinax-project-social
 
 a starter project for social components based on pinax-project-account
 
-
-To Use::
+Example usage
+=============
 
     $ virtualenv mysite
     $ source mysite/bin/activate
@@ -16,3 +16,8 @@ To Use::
     (mysite)$ python manage.py runserver
 
 Hit http://127.0.0.1:8000 to view the site!
+
+What's included
+===============
+
+ * user profiles which are hooked up to the sign up process
