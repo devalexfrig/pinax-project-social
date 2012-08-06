@@ -1,9 +1,18 @@
-pinax-project-account
-=====================
+pinax-project-social
+====================
 
-a starter project the incorporates account features from django-user-accounts
+a starter project for social components based on pinax-project-account
 
 
 To Use::
 
-    $ django-admin.py startproject [your_project_name] --template=https://github.com/pinax/pinax-project-account/zipball/master .
+    $ virtualenv mysite
+    $ source mysite/bin/activate
+    (mysite)$ pip install Django==1.4.1
+    (mysite)$ django-admin.py startproject --template=https://github.com/pinax/pinax-project-social/zipball/master mysite
+    (mysite)$ cd mysite
+    (mysite)$ pip install -r requirements.txt
+    (mysite)$ python manage.py syncdb
+    (mysite)$ python manage.py runserver
+
+Hit http://127.0.0.1:8000 to view the site!
