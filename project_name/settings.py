@@ -136,6 +136,7 @@ INSTALLED_APPS = [
     "metron",
     
     # project
+    "profiles",
 ]
 
 # A sample logging configuration. The only tangible logging
