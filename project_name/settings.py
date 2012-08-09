@@ -136,7 +136,7 @@ INSTALLED_APPS = [
     "metron",
     
     # project
-    "{{ project_name}}.profiles",
+    "{{ project_name }}.profiles",
 ]
 
 # A sample logging configuration. The only tangible logging
