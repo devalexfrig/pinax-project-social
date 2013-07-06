@@ -7,13 +7,29 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from .views import SignupView
 
 urlpatterns = patterns(
     "",
     url(r"^$", TemplateView.as_view(template_name="homepage.html"), name="home"),
     url(r"^admin/", include(admin.site.urls)),
-    url(r"^account/signup/$", SignupView.as_view(), name="account_signup"),
+    url(r"^friends/", include("{{ project_name }}.friends.urls")),
+    
+    url(
+        r"^account/social/connections/$",
+        TemplateView.as_view(template_name="account/connections.html"),
+        name="account_social_connections"
+    ),
+    url(r"^account/social/", include("social_auth.urls")),
+    url(
+        r"^account/login/$",
+        TemplateView.as_view(template_name="account/signup.html"),
+        name="account_login"
+    ),
+    url(
+        r"^account/signup/$",
+        TemplateView.as_view(template_name="account/signup.html"),
+        name="account_signup"
+    ),
     url(r"^account/", include("account.urls")),
 )
 
