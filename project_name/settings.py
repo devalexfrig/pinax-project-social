@@ -1,5 +1,7 @@
 import os
 
+from django.core.urlresolvers import reverse_lazy
+
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -95,7 +97,10 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.tz",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "account.context_processors.account",
     "pinax_theme_bootstrap.context_processors.theme",
+    "social_auth.context_processors.social_auth_by_name_backends",
+    "{{ project_name }}.friends.context_processors.suggestions"
 ]
 
 
@@ -105,6 +110,7 @@ MIDDLEWARE_CLASSES = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "social_auth.middleware.SocialAuthExceptionMiddleware"
 ]
 
 ROOT_URLCONF = "{{ project_name }}.urls"
@@ -132,8 +138,12 @@ INSTALLED_APPS = [
     # external
     "account",
     "metron",
+    "social_auth",
+    "djcelery",
     
     # project
+    "{{ project_name }}",
+    "{{ project_name }}.friends",
     "{{ project_name }}.profiles",
 ]
 
@@ -181,3 +191,90 @@ ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
 ACCOUNT_LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 2
+LOGIN_URL = reverse_lazy("account_login_signup")
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+
+# Social Auth
+
+LOGIN_ERROR_URL = "/account/social/connections/"
+
+AUTHENTICATION_BACKENDS = [
+    "social_auth.backends.twitter.TwitterBackend",
+    "social_auth.backends.facebook.FacebookBackend",
+    "social_auth.backends.google.GoogleOAuth2Backend",
+]
+
+SOCIAL_AUTH_ASSOCIATE_BY_MAIL = False
+
+SOCIAL_AUTH_PIPELINE = [
+    "{{ project_name }}.pipeline.prevent_duplicates",
+    
+    "social_auth.backends.pipeline.social.social_auth_user",
+    "social_auth.backends.pipeline.user.get_username",
+    "social_auth.backends.pipeline.user.create_user",
+    "social_auth.backends.pipeline.social.associate_user",
+    "social_auth.backends.pipeline.social.load_extra_data",
+    "social_auth.backends.pipeline.user.update_user_details",
+    
+    "{{ project_name }}.pipeline.import_friends"
+]
+
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get("GOOGLE_OAUTH2_CLIENT_ID", "")
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH2_CLIENT_SECRET", "")
+
+TWITTER_CONSUMER_KEY = os.environ.get("TWITTER_CONSUMER_KEY", "")
+TWITTER_CONSUMER_SECRET = os.environ.get("TWITTER_CONSUMER_SECRET", "")
+
+FACEBOOK_APP_ID = os.environ.get("FACEBOOK_APP_ID", "")
+FACEBOOK_API_SECRET = os.environ.get("FACEBOOK_API_SECRET", "")
+FACEBOOK_EXTENDED_PERMISSIONS = [
+    "email",
+]
+
+GOOGLE_OAUTH_EXTRA_SCOPE = [
+    "https://www.googleapis.com/auth/plus.login",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
+
+GOOGLE_OAUTH2_EXTRA_DATA = [
+    ("given_name", "first_name"),
+    ("family_name", "last_name"),
+    ("email", "email"),
+]
+
+FACEBOOK_EXTRA_DATA = [
+    ("first_name", "first_name"),
+    ("last_name", "last_name"),
+]
+
+TWITTER_EXTRA_DATA = [
+    ("name", "name"),
+    ("screen_name", "screen_name"),
+    ("profile_image_url", "profile_image_url"),
+]
+
+
+# Celery
+
+BROKER_TRANSPORT = "redis"
+BROKER_HOST = "localhost"
+BROKER_PORT = 6379
+BROKER_VHOST = "0"
+BROKER_PASSWORD = ""
+BROKER_POOL_LIMIT = 10
+
+CELERY_RESULT_BACKEND = "redis"
+CELERY_REDIS_HOST = "localhost"
+CELERY_REDIS_PORT = 6379
+CELERY_REDIS_PASSWORD = ""
+CELERYD_HIJACK_ROOT_LOGGER = False
+CELERYD_LOG_LEVEL = "INFO"
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+CELERY_IGNORE_RESULT = True
+CELERY_SEND_TASK_ERROR_EMAILS = True
+CELERY_DISABLE_RATE_LIMITS = True
+CELERY_TASK_PUBLISH_RETRY = True
+CELERY_TASK_RESULT_EXPIRES = 7 * 24 * 60 * 60  # 7 Days
+CELERYD_TASK_TIME_LIMIT = 120
+CELERYD_TASK_SOFT_TIME_LIMIT = 120
