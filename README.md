@@ -8,7 +8,7 @@ Example usage
 
     $ virtualenv mysite
     $ source mysite/bin/activate
-    (mysite)$ pip install Django==1.4.5
+    (mysite)$ pip install Django==1.6.5
     (mysite)$ django-admin.py startproject --template=https://github.com/pinax/pinax-project-social/zipball/master mysite
     (mysite)$ cd mysite
     (mysite)$ pip install -r requirements.txt
